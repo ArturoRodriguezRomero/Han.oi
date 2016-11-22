@@ -1,0 +1,152 @@
+<html>
+    <head>
+        <title>Han.oi</title>
+		<meta charset="UTF-8"/>
+		<meta name="description" content="Cool game"/>
+		<meta name="author" content="Arturo Rodriguez Romero">
+    </head>
+	<style>
+		body{
+			margin:0;
+			box-sizing: border-box;
+			background-color:OliveDrab;
+			display:flex;
+			flex-direction:column;
+			overflow:hidden;
+		}
+		#torres{
+			width:100%;
+			background: linear-gradient(DodgerBlue, deepskyblue);
+			display:flex;
+			justify-content:center;
+			padding-top:200px;
+			padding-bottom:0px;
+			margin-bottom:0px;
+		}
+		.torre{
+			display:flex;
+			flex-direction:column-reverse;
+			align-items:center;
+			width:300px;
+			height:500px;
+			margin-left:5px;
+			margin-right:5px;
+			border: 1px dashed gold;
+			border-radius: 10px;
+		}
+		.pieza{
+			margin-top:10px;
+			background-color:MediumSlateBlue ; 
+			width:200px;
+			height:100px;
+			background: linear-gradient(MediumSlateBlue, Indigo );
+			border-radius: 10px;
+		}
+		.grass{
+			margin-top:0px;
+			width:100%;
+			height:400px;
+			background: linear-gradient(YellowGreen, OliveDrab );
+		}
+		#movimientos{
+			text-align:center;
+			color:OliveDrab;
+			font-size:30px;
+			font-family: "Open Sans", "Georgia", "Times New Roman", serif;
+		}
+	</style>
+    <body>
+		<div id="torres">
+			<div class="torre" data-torre="1">
+				<div class="pieza" data-ancho ="4" data-pieza="3">
+				</div>
+				<div class="pieza" data-ancho ="3" data-pieza="2">
+				</div>
+				<div class="pieza" data-ancho ="2" data-pieza="1">
+				</div>
+				<div class="pieza" data-ancho ="1" data-pieza="0">
+				</div>
+			</div>
+			<div class="torre" data-torre="2">
+			</div>
+			<div class="torre" data-torre="3">
+			</div>
+		</div>
+		<div class="grass">
+			<p id="movimientos">Movimientos: 0</p>
+		</div>
+    </body>
+	<script>
+	
+		let torres = document.querySelectorAll('.torre');
+		let piezas = document.querySelectorAll('.pieza');
+		let pMovimientos = document.querySelector('#movimientos');
+		let piezaArrastrada = null;
+		let haGanado = false;
+		let movimientos = 0;
+		
+		for(let i = 0; i < torres.length; i++){
+			torres[i].addEventListener("drop", function(){soltar(event)}, false);
+			torres[i].addEventListener("dragover", function(){permitirSoltar(event)}, false);
+			torres[i].id = "torre" + (i + 1);
+		}
+		
+		for(let i = 0; i < piezas.length; i++){
+			piezas[i].addEventListener("dragstart", function(){empezarArrastrar(event)}, false);
+			piezas[i].addEventListener("drag", function(){arrastrar(event)}, false);
+			piezas[i].addEventListener("dragend", function(){terminarArrastrar(event)}, false);
+			piezas[i].draggable = true;
+			piezas[i].style.width = piezas[i].dataset.ancho * 75;
+			piezas[i].id = "pieza" + (i + 1);
+		}
+		
+		function empezarArrastrar(ev){
+			//console.log("empezando arrastrar...")
+			//ev.dataTransfer.setData("text", ev.target.id); //te coje el id de la pieza arrastrada
+			piezaArrastrada = ev.target;
+		}
+		
+		function arrastrar(ev){
+			
+		}
+		
+		function terminarArrastrar(ev){
+			
+		}
+		
+		function permitirSoltar(ev){
+			if(ev.target.className == 'torre'){
+				if(piezaArrastrada.id == piezaArrastrada.parentNode.children[piezaArrastrada.parentNode.children.length - 1].id){
+					if(ev.target.children.length > 0){
+						console.log(piezaArrastrada.id + " tiene que ser igual a " + piezaArrastrada.parentNode.children[piezaArrastrada.parentNode.children.length - 1].id);
+						//console.log(ev.target.children[ev.target.children.length - 1].dataset.pieza + "tiene que ser mayor que " + piezaArrastrada.dataset.pieza)
+						if(ev.target.children[ev.target.children.length - 1].dataset.pieza > piezaArrastrada.dataset.pieza){
+							ev.preventDefault();
+						}
+					} else {
+						ev.preventDefault();
+					}
+				}
+			}
+		}
+		
+		function soltar(ev){
+			//console.log("soltado");
+			ev.preventDefault();
+			//let idPieza = ev.dataTransfer.getData("text");
+			//console.log("La id es: " + contenidoId);
+			ev.target.appendChild(piezaArrastrada);
+			ev.dataTransfer.clearData();
+			
+			piezaArrastrada = false;
+			movimientos++;
+			pMovimientos.innerHTML = "Movimientos: " + movimientos;
+			
+			if(torres[torres.length - 1].children.length == piezas.length){
+				haGanado = true;
+				alert("Has ganado con " + movimientos + " movimientos");
+			}
+		}
+	
+	</script>
+</html>
