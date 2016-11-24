@@ -4,6 +4,7 @@
 		<meta charset="UTF-8"/>
 		<meta name="description" content="Cool game"/>
 		<meta name="author" content="Arturo Rodriguez Romero">
+		<link rel="stylesheet" type="text/css" href="fireworks.css"><!--Fireworks by http://codepen.io/yshlin/pen/ylDEk-->
     </head>
 	<style>
 		body{
@@ -13,13 +14,27 @@
 			display:flex;
 			flex-direction:column;
 			overflow:hidden;
+			height:500px;
+		}
+		#cielo{
+			text-align:center;
+			background-color:DodgerBlue;
+			font-size:10em;
+			/*height:200px;*/
+			color:Azure;
+			font-family: "Open Sans", "Georgia", "Times New Roman", serif;
+		}
+		#textocielo{
+			background-color:DodgerBlue;
+			opacity:0;
+			transition:5s ease;
 		}
 		#torres{
 			width:100%;
 			background: linear-gradient(DodgerBlue, deepskyblue);
 			display:flex;
 			justify-content:center;
-			padding-top:200px;
+			padding-top:0px;
 			padding-bottom:0px;
 			margin-bottom:0px;
 		}
@@ -31,59 +46,98 @@
 			height:500px;
 			margin-left:5px;
 			margin-right:5px;
-			border: 1px dashed gold;
+			/*border: 1px dashed gold;*/
 			border-radius: 10px;
 		}
 		.pieza{
-			margin-top:10px;
+			margin:0px;
 			background-color:MediumSlateBlue ; 
 			width:200px;
 			height:100px;
 			background: linear-gradient(MediumSlateBlue, Indigo );
 			border-radius: 10px;
+			transition: 1s ease;
+			
+			box-shadow: 5px -5px 0px MediumSlateBlue,
+				10px -10px 0px MediumSlateBlue,
+				15px -15px 0px MediumSlateBlue,
+				20px -20px 0px MediumSlateBlue;
+		}
+		.pieza:hover{
+			cursor: hand;
 		}
 		.grass{
 			margin-top:0px;
 			width:100%;
 			height:400px;
 			background: linear-gradient(YellowGreen, OliveDrab );
+			box-shadow: 5px -5px 0px YellowGreen,
+				0px -10px 0px YellowGreen,
+				0px -15px 0px YellowGreen,
+				0px -20px 0px YellowGreen,
+				0px -25px 0px YellowGreen,
+				0px -30px 0px YellowGreen;
 		}
-		#movimientos{
+		#movimientos, #reiniciar{
+			margin:0;
 			text-align:center;
 			color:OliveDrab;
 			font-size:30px;
 			font-family: "Open Sans", "Georgia", "Times New Roman", serif;
 		}
+		a{
+			transition: .5s ease;
+		}
+		a:link, a:visited{	
+			color:OliveDrab;
+			text-decoration:none;
+			background-color:YellowGreen;
+			border-radius:5px;
+			padding:4px;
+		}
+		a:hover{
+			background-color:OliveDrab;
+			color:YellowGreen;
+			cursor: hand;
+			border-radius:5px;
+		}
 	</style>
     <body>
-		<div id="torres">
-			<div class="torre" data-torre="1">
-				<div class="pieza" data-ancho ="4" data-pieza="3">
+		<div id="pyromanager" class="pyro">
+			<div class="before"></div>
+			<div id="cielo"><div id="textocielo">HAS GANADO</div></div>
+			<div id="torres">
+				<div class="torre" data-torre="1">
+					<div class="pieza" data-ancho ="4" data-pieza="3">
+					</div>
+					<div class="pieza" data-ancho ="3" data-pieza="2">
+					</div>
+					<div class="pieza" data-ancho ="2" data-pieza="1">
+					</div>
+					<div class="pieza" data-ancho ="1" data-pieza="0">
+					</div>
 				</div>
-				<div class="pieza" data-ancho ="3" data-pieza="2">
+				<div class="torre" data-torre="2">
 				</div>
-				<div class="pieza" data-ancho ="2" data-pieza="1">
-				</div>
-				<div class="pieza" data-ancho ="1" data-pieza="0">
+				<div class="torre" data-torre="3">
 				</div>
 			</div>
-			<div class="torre" data-torre="2">
+			<div class="after"></div>
+			<div class="grass">
+				<p id="movimientos">Movimientos: 0</p>
+				<p id="reiniciar"><a>Reiniciar</a></p>
 			</div>
-			<div class="torre" data-torre="3">
-			</div>
-		</div>
-		<div class="grass">
-			<p id="movimientos">Movimientos: 0</p>
 		</div>
     </body>
 	<script>
-	
 		let torres = document.querySelectorAll('.torre');
 		let piezas = document.querySelectorAll('.pieza');
 		let pMovimientos = document.querySelector('#movimientos');
 		let piezaArrastrada = null;
 		let haGanado = false;
 		let movimientos = 0;
+		let sonido1 = new Audio('Picked Coin Echo.wav')//Sonido de NenadSimic http://opengameart.org/users/nenadsimic
+		let sonido2 = new Audio('Accept.mp3')//sonido de ViRix http://opengameart.org/content/ui-accept-or-forward
 		
 		for(let i = 0; i < torres.length; i++){
 			torres[i].addEventListener("drop", function(){soltar(event)}, false);
@@ -100,10 +154,15 @@
 			piezas[i].id = "pieza" + (i + 1);
 		}
 		
+		//alert(document.querySelector('#reiniciar').id)
+		document.querySelector('#reiniciar').addEventListener("click", reiniciar, false);
+		document.querySelector('#pyromanager').classList.toggle('pyro');
+		
 		function empezarArrastrar(ev){
 			//console.log("empezando arrastrar...")
 			//ev.dataTransfer.setData("text", ev.target.id); //te coje el id de la pieza arrastrada
 			piezaArrastrada = ev.target;
+			ev.target.style.opacity = 0.5;
 		}
 		
 		function arrastrar(ev){
@@ -111,14 +170,14 @@
 		}
 		
 		function terminarArrastrar(ev){
-			
+			ev.target.style.opacity = 1;
 		}
 		
 		function permitirSoltar(ev){
 			if(ev.target.className == 'torre'){
 				if(piezaArrastrada.id == piezaArrastrada.parentNode.children[piezaArrastrada.parentNode.children.length - 1].id){
 					if(ev.target.children.length > 0){
-						console.log(piezaArrastrada.id + " tiene que ser igual a " + piezaArrastrada.parentNode.children[piezaArrastrada.parentNode.children.length - 1].id);
+						//console.log(piezaArrastrada.id + " tiene que ser igual a " + piezaArrastrada.parentNode.children[piezaArrastrada.parentNode.children.length - 1].id);
 						//console.log(ev.target.children[ev.target.children.length - 1].dataset.pieza + "tiene que ser mayor que " + piezaArrastrada.dataset.pieza)
 						if(ev.target.children[ev.target.children.length - 1].dataset.pieza > piezaArrastrada.dataset.pieza){
 							ev.preventDefault();
@@ -142,10 +201,28 @@
 			movimientos++;
 			pMovimientos.innerHTML = "Movimientos: " + movimientos;
 			
+			sonido1.currentTime = 0;
+			sonido1.play();
+			
 			if(torres[torres.length - 1].children.length == piezas.length){
 				haGanado = true;
-				alert("Has ganado con " + movimientos + " movimientos");
+				//alert("Has ganado con " + movimientos + " movimientos");
+				document.querySelector('#textocielo').style.opacity = 1;
+				document.querySelector('#pyromanager').classList.toggle('pyro');
+				sonido2.play();
 			}
+		}
+		
+		function reiniciar(){
+			for(let i = 0; i < piezas.length; i++){
+				torres[0].appendChild(piezas[i]);
+			}
+			if(document.querySelector('#pyromanager').classList.contains('pyro')){
+				document.querySelector('#pyromanager').classList.toggle('pyro');
+			}
+			movimientos = 0;
+			pMovimientos.innerHTML = "Movimientos: " + movimientos;
+			document.querySelector('#textocielo').style.opacity = 0;
 		}
 	
 	</script>
